@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Painel dos Noivos | Enrique & Ellen</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="admin-page">
+    <main class="admin-shell">
+      <section class="admin-login" id="admin-login">
+        <p class="eyebrow">Área reservada</p>
+        <h1>Painel dos Noivos</h1>
+        <p>Digite a senha para acompanhar reservas, presenças e mensagens.</p>
+        <form id="admin-login-form" class="admin-login-form">
+          <label>
+            Senha
+            <input type="password" name="password" autocomplete="current-password" required />
+          </label>
+          <button class="button primary" type="submit">Entrar</button>
+          <p class="form-status" id="admin-login-status" role="status"></p>
+        </form>
+      </section>
+
+      <section class="admin-dashboard" id="admin-dashboard" hidden>
+        <header class="admin-dashboard-header">
+          <div>
+            <p class="eyebrow">Enrique & Ellen</p>
+            <h1>Painel dos Noivos</h1>
+          </div>
+          <a class="button secondary" href="index.html">Voltar ao site</a>
+        </header>
+
+        <div class="admin-summary">
+          <article>
+            <span id="gift-count">0</span>
+            <p>presentes reservados</p>
+          </article>
+          <article>
+            <span id="rsvp-count">0</span>
+            <p>confirmações</p>
+          </article>
+          <article>
+            <span id="message-count">0</span>
+            <p>mensagens</p>
+          </article>
+        </div>
+
+        <section class="admin-section">
+          <h2>Presentes reservados</h2>
+          <div class="admin-list" id="admin-gifts">
+            <p class="empty-state">Nenhum presente reservado ainda.</p>
+          </div>
+        </section>
+
+        <section class="admin-section">
+          <h2>Confirmações de presença</h2>
+          <div class="admin-list" id="admin-rsvps">
+            <p class="empty-state">Nenhuma presença confirmada ainda.</p>
+          </div>
+        </section>
+
+        <section class="admin-section">
+          <h2>Mensagens aos noivos</h2>
+          <div class="admin-list" id="admin-messages">
+            <p class="empty-state">Nenhuma mensagem enviada ainda.</p>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <script type="module" src="admin.js"></script>
+  </body>
+</html>
