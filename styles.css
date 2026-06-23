@@ -557,6 +557,7 @@ textarea {
   grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   gap: 0.8rem;
+  align-content: start;
   min-height: 5.2rem;
   padding: 1rem;
   background: var(--white);
@@ -590,15 +591,27 @@ textarea {
 }
 
 .gift-item:has(.gift-photo) .gift-reserve {
-  grid-row: 2 / span 3;
+  grid-row: 2 / span 4;
+}
+
+.gift-price {
+  grid-column: 1;
+  grid-row: 2;
+  color: #8a6f52;
+  font-size: 0.96rem;
+  font-weight: 800;
+}
+
+.gift-item:has(.gift-photo) .gift-price {
+  grid-row: 3;
 }
 
 .gift-link {
   grid-column: 1;
-  grid-row: 2;
+  grid-row: 3;
   justify-self: start;
   align-self: end;
-  margin-top: 0.45rem;
+  margin-top: -0.25rem;
   color: var(--serenity-deep);
   font-size: 0.78rem;
   font-weight: 800;
@@ -611,7 +624,7 @@ textarea {
 }
 
 .gift-item:has(.gift-photo) .gift-link {
-  grid-row: 3;
+  grid-row: 4;
 }
 
 .gift-reserved-by {
@@ -1096,6 +1109,7 @@ textarea {
   }
 
   .gift-item span,
+  .gift-price,
   .gift-link,
   .gift-reserve {
     grid-column: 1;
