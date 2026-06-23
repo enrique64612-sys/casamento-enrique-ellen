@@ -147,7 +147,7 @@ a {
   background:
     linear-gradient(180deg, rgba(22, 28, 22, 0.18), rgba(22, 28, 22, 0.34)),
     linear-gradient(90deg, rgba(251, 248, 241, 0.9), rgba(251, 248, 241, 0.58)),
-    url("assets/pedido-casamento.jpeg") center 38%/cover;
+    url("assets/casal-novo-01.jpeg") center 38%/cover;
 }
 
 .hero::after {
@@ -376,7 +376,7 @@ cite {
 .ceremony-image {
   background-image:
     linear-gradient(180deg, rgba(47, 53, 47, 0.04), rgba(47, 53, 47, 0.18)),
-    url("assets/enrique-ellen-vista.jpeg");
+    url("assets/casal-novo-12.jpeg");
 }
 
 .info-panel {
@@ -686,6 +686,57 @@ textarea {
   font-weight: 700;
 }
 
+.gift-method {
+  display: grid;
+  gap: 0.65rem;
+  margin: 0;
+  padding: 1rem;
+  border: 1px solid rgba(119, 132, 99, 0.22);
+  border-radius: 8px;
+}
+
+.gift-method legend {
+  padding: 0 0.35rem;
+  color: var(--olive-dark);
+  font-size: 0.82rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.gift-method label {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  color: var(--muted);
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-transform: none;
+}
+
+.gift-method input {
+  width: auto;
+  box-shadow: none;
+}
+
+.pix-box {
+  display: grid;
+  gap: 0.45rem;
+  padding: 1rem;
+  background: rgba(168, 199, 215, 0.16);
+  border: 1px solid rgba(111, 152, 172, 0.28);
+  border-radius: 8px;
+}
+
+.pix-box[hidden] {
+  display: none;
+}
+
+.pix-box p {
+  margin: 0;
+  color: var(--muted);
+  font-weight: 500;
+}
+
 .gift-panel-actions {
   display: flex;
   flex-wrap: wrap;
@@ -730,6 +781,7 @@ textarea {
 }
 
 .gallery-grid img {
+  grid-column: span 2;
   height: 100%;
   object-fit: cover;
   border-radius: 8px;
@@ -737,13 +789,21 @@ textarea {
 }
 
 .gallery-grid img:nth-child(1),
-.gallery-grid img:nth-child(4) {
+.gallery-grid img:nth-child(6),
+.gallery-grid img:nth-child(10) {
   grid-column: span 3;
   grid-row: span 2;
 }
 
 .gallery-grid img:nth-child(2),
-.gallery-grid img:nth-child(3) {
+.gallery-grid img:nth-child(3),
+.gallery-grid img:nth-child(4),
+.gallery-grid img:nth-child(5),
+.gallery-grid img:nth-child(7),
+.gallery-grid img:nth-child(8),
+.gallery-grid img:nth-child(9),
+.gallery-grid img:nth-child(11),
+.gallery-grid img:nth-child(12) {
   grid-column: span 3;
 }
 
@@ -991,9 +1051,17 @@ textarea {
 
   .gallery-grid img,
   .gallery-grid img:nth-child(1),
-  .gallery-grid img:nth-child(4),
+  .gallery-grid img:nth-child(6),
+  .gallery-grid img:nth-child(10),
   .gallery-grid img:nth-child(2),
-  .gallery-grid img:nth-child(3) {
+  .gallery-grid img:nth-child(3),
+  .gallery-grid img:nth-child(4),
+  .gallery-grid img:nth-child(5),
+  .gallery-grid img:nth-child(7),
+  .gallery-grid img:nth-child(8),
+  .gallery-grid img:nth-child(9),
+  .gallery-grid img:nth-child(11),
+  .gallery-grid img:nth-child(12) {
     grid-column: span 1;
     grid-row: span 1;
   }

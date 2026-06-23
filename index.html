@@ -6,7 +6,7 @@
     <title>Enrique de Souza & Ellen Raquel Kuhnen | Casamento</title>
     <meta
       name="description"
-      content="Site de casamento de Enrique de Souza e Ellen Raquel Kuhnen, com informações da cerimônia, recepção, RSVP, presentes e mensagens."
+      content="Site de casamento de Enrique de Souza e Ellen Raquel Kuhnen, com informações da cerimônia, recepção, confirmação de presença, presentes e mensagens."
     />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -27,7 +27,7 @@
       <nav id="site-nav" class="site-nav">
         <a href="#historia">História</a>
         <a href="#cerimonia">Cerimônia</a>
-        <a href="#rsvp">RSVP</a>
+        <a href="#rsvp">Confirmação de presença</a>
         <a href="#presentes">Presentes</a>
         <a href="#galeria">Galeria</a>
         <a href="#mensagens">Mensagens</a>
@@ -71,27 +71,27 @@
               em caminho.
             </p>
             <p>
-              Entre conversas, orações, família e paisagens que lembram a Serra
-              Catarinense, cada detalhe deste casamento celebra uma história construída
-              com delicadeza, verdade e alegria.
+              Entre conversas, orações, família e momentos vividos com carinho,
+              cada detalhe deste casamento celebra uma história construída com
+              delicadeza, verdade e alegria.
             </p>
           </article>
           <div class="photo-stack reveal" aria-label="Galeria elegante do casal">
             <figure class="photo-card tall">
               <img
-                src="assets/pedido-casamento.jpeg"
+                src="assets/casal-novo-01.jpeg"
                 alt="Enrique pedindo Ellen em casamento"
               />
             </figure>
             <figure class="photo-card">
               <img
-                src="assets/enrique-ellen-brinde.jpeg"
+                src="assets/casal-novo-02.jpeg"
                 alt="Enrique e Ellen brindando juntos"
               />
             </figure>
             <figure class="photo-card">
               <img
-                src="assets/enrique-ellen-vista.jpeg"
+                src="assets/casal-novo-12.jpeg"
                 alt="Enrique e Ellen abraçados com vista noturna"
               />
             </figure>
@@ -159,8 +159,12 @@
             <input name="nome" type="text" autocomplete="name" required />
           </label>
           <label>
-            Quantidade de acompanhantes
-            <input name="acompanhantes" type="number" min="0" max="10" value="0" required />
+            Quantidade de adultos
+            <input name="adultos" type="number" min="1" max="20" value="1" required />
+          </label>
+          <label>
+            Quantidade de crianças
+            <input name="criancas" type="number" min="0" max="20" value="0" required />
           </label>
           <label>
             Restrições alimentares
@@ -276,6 +280,22 @@
               Telefone para contato
               <input name="giftGuestPhone" type="tel" autocomplete="tel" required />
             </label>
+            <fieldset class="gift-method">
+              <legend>Como deseja presentear?</legend>
+              <label>
+                <input type="radio" name="giftMethod" value="Entregar em mãos" checked />
+                Entregar em mãos
+              </label>
+              <label>
+                <input type="radio" name="giftMethod" value="Pix" />
+                Fazer o valor em Pix
+              </label>
+            </fieldset>
+            <div class="pix-box" id="pix-box" hidden>
+              <p><strong>Chave Pix CPF:</strong> <span id="pix-key">091.604.719-99</span></p>
+              <p><strong>Titular:</strong> Ellen Raquel Kuhnen</p>
+              <button class="button secondary" type="button" id="copy-pix-key">Copiar chave Pix</button>
+            </div>
             <div class="gift-panel-actions">
               <button class="button primary" type="submit">Confirmar reserva</button>
               <button class="button secondary" type="button" id="close-gift-panel">Cancelar</button>
@@ -310,10 +330,19 @@
           <h2>Momentos especiais do casal</h2>
         </div>
         <div class="gallery-grid reveal">
-          <img src="assets/pedido-casamento.jpeg" alt="Pedido de casamento de Enrique para Ellen" />
-          <img src="assets/enrique-ellen-brinde.jpeg" alt="Enrique e Ellen brindando" />
-          <img src="assets/enrique-ellen-beijo.jpeg" alt="Enrique e Ellen se beijando" />
-          <img src="assets/enrique-ellen-vista.jpeg" alt="Enrique e Ellen abraçados" />
+          <img src="assets/casal-novo-01.jpeg" alt="Enrique e Ellen em traje típico" />
+          <img src="assets/casal-novo-02.jpeg" alt="Enrique e Ellen dançando" />
+          <img src="assets/casal-novo-03.jpeg" alt="Ellen mostrando a aliança" />
+          <img src="assets/casal-novo-04.jpeg" alt="Enrique e Ellen em evento à noite" />
+          <img src="assets/casal-novo-05.jpeg" alt="Enrique e Ellen na praia" />
+          <img src="assets/casal-novo-06.jpeg" alt="Enrique e Ellen se beijando" />
+          <img src="assets/casal-novo-07.jpeg" alt="Enrique beijando Ellen na ponte" />
+          <img src="assets/casal-novo-08.jpeg" alt="Enrique e Ellen no pedido de casamento" />
+          <img src="assets/casal-novo-09.jpeg" alt="Enrique e Ellen com flores" />
+          <img src="assets/casal-novo-10.jpeg" alt="Enrique e Ellen em cenário natural" />
+          <img src="assets/casal-novo-11.jpeg" alt="Pedido de casamento de Enrique e Ellen" />
+          <img src="assets/casal-novo-12.jpeg" alt="Enrique e Ellen dançando em festa" />
+          <img src="assets/casal-novo-13.jpeg" alt="Enrique e Ellen com seus cachorros" />
         </div>
       </section>
 

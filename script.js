@@ -119,8 +119,9 @@ rsvpForm.addEventListener("submit", async (event) => {
   try {
     await addDoc(collection(db, "rsvps"), rsvp);
     localStorage.setItem("enrique-ellen-rsvp", JSON.stringify({ ...formData, sentAt: new Date().toISOString() }));
-    rsvpStatus.textContent = "Presença confirmada com carinho. Obrigado!";
+    rsvpStatus.textContent = "Presença confirmada com carinho. Agora escolha um presente, se desejar.";
     rsvpForm.reset();
+    document.getElementById("presentes").scrollIntoView({ behavior: "smooth", block: "start" });
   } catch (error) {
     console.error(error);
     rsvpStatus.textContent = "Não foi possível enviar agora. Verifique as regras do Firebase e tente novamente.";
@@ -180,6 +181,9 @@ const giftStatus = document.getElementById("gift-status");
 const giftReservationForm = document.getElementById("gift-reservation-form");
 const selectedGiftName = document.getElementById("selected-gift-name");
 const closeGiftPanel = document.getElementById("close-gift-panel");
+const pixBox = document.getElementById("pix-box");
+const copyPixKey = document.getElementById("copy-pix-key");
+const pixKey = document.getElementById("pix-key");
 const reservedGifts = {};
 let myReservedGifts = JSON.parse(localStorage.getItem("enrique-ellen-my-gifts") || "{}");
 let activeGift = "";
@@ -225,6 +229,7 @@ function markGiftReserved(button, reservation) {
 function closeReservationPanel() {
   giftReservationForm.hidden = true;
   giftReservationForm.reset();
+  pixBox.hidden = true;
   activeGift = "";
 }
 
@@ -319,6 +324,9 @@ giftReservationForm.addEventListener("submit", async (event) => {
     giftName: activeGift,
     name: formData.get("giftGuestName").trim(),
     phone: formData.get("giftGuestPhone").trim(),
+    method: formData.get("giftMethod"),
+    pixKey: formData.get("giftMethod") === "Pix" ? pixKey.textContent : "",
+    pixHolder: formData.get("giftMethod") === "Pix" ? "Ellen Raquel Kuhnen" : "",
     reservedAt: serverTimestamp(),
   };
 
@@ -338,7 +346,10 @@ giftReservationForm.addEventListener("submit", async (event) => {
 
     myReservedGifts[activeGift] = true;
     saveMyGiftReservations();
-    giftStatus.textContent = `${activeGift} reservado por ${reservation.name}. Obrigado pelo carinho!`;
+    giftStatus.textContent =
+      reservation.method === "Pix"
+        ? `${activeGift} reservado por ${reservation.name}. Chave Pix: ${reservation.pixKey}, titular Ellen Raquel Kuhnen.`
+        : `${activeGift} reservado por ${reservation.name}. Entrega em mãos selecionada. Obrigado pelo carinho!`;
     closeReservationPanel();
   } catch (error) {
     console.error(error);
@@ -352,4 +363,20 @@ giftReservationForm.addEventListener("submit", async (event) => {
 closeGiftPanel.addEventListener("click", () => {
   closeReservationPanel();
   giftStatus.textContent = "Reserva cancelada antes da confirmação.";
+});
+
+giftReservationForm.addEventListener("change", (event) => {
+  if (event.target.name === "giftMethod") {
+    pixBox.hidden = event.target.value !== "Pix";
+  }
+});
+
+copyPixKey.addEventListener("click", async () => {
+  try {
+    await navigator.clipboard.writeText(pixKey.textContent);
+    giftStatus.textContent = "Chave Pix copiada.";
+  } catch (error) {
+    console.error(error);
+    giftStatus.textContent = `Chave Pix: ${pixKey.textContent}`;
+  }
 });

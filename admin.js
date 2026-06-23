@@ -118,6 +118,9 @@ function startListeners() {
           ["Presente", gift.giftName],
           ["Reservado por", gift.name],
           ["Telefone", gift.phone],
+          ["Forma de presente", gift.method],
+          ["Chave Pix", gift.pixKey],
+          ["Titular Pix", gift.pixHolder],
           ["Data", formatDate(gift.reservedAt)],
         ]);
       });
@@ -144,7 +147,8 @@ function startListeners() {
         renderAdminCard(rsvpList, [
           ["Nome", rsvp.nome],
           ["Telefone", rsvp.telefone],
-          ["Acompanhantes", rsvp.acompanhantes],
+          ["Adultos", rsvp.adultos || rsvp.acompanhantes],
+          ["Crianças", rsvp.criancas],
           ["Restrições", rsvp.restricoes],
           ["Mensagem", rsvp.mensagem],
           ["Data", formatDate(rsvp.createdAt)],
