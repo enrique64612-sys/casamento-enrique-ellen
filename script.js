@@ -40,7 +40,6 @@ async function setupFirebase() {
 }
 
 const weddingDate = new Date("2026-11-21T19:00:00-03:00");
-
 const countdownFields = {
   days: document.getElementById("days"),
   hours: document.getElementById("hours"),
@@ -53,9 +52,12 @@ function pad(value) {
 }
 
 function updateCountdown() {
+  if (!countdownFields.days || !countdownFields.hours || !countdownFields.minutes || !countdownFields.seconds) {
+    return;
+  }
+
   const now = new Date();
   const distance = Math.max(weddingDate.getTime() - now.getTime(), 0);
-
   const days = Math.floor(distance / (1000 * 60 * 60 * 24));
   const hours = Math.floor((distance / (1000 * 60 * 60)) % 24);
   const minutes = Math.floor((distance / (1000 * 60)) % 60);
@@ -73,67 +75,117 @@ setInterval(updateCountdown, 1000);
 const menuToggle = document.querySelector(".menu-toggle");
 const siteNav = document.querySelector(".site-nav");
 
-menuToggle.addEventListener("click", () => {
-  const isOpen = siteNav.classList.toggle("open");
-  menuToggle.setAttribute("aria-expanded", String(isOpen));
-});
+if (menuToggle && siteNav) {
+  menuToggle.addEventListener("click", () => {
+    const isOpen = siteNav.classList.toggle("open");
+    menuToggle.setAttribute("aria-expanded", String(isOpen));
+  });
 
-siteNav.addEventListener("click", (event) => {
-  if (event.target.matches("a")) {
-    siteNav.classList.remove("open");
-    menuToggle.setAttribute("aria-expanded", "false");
-  }
-});
+  siteNav.addEventListener("click", (event) => {
+    if (event.target.matches("a")) {
+      siteNav.classList.remove("open");
+      menuToggle.setAttribute("aria-expanded", "false");
+    }
+  });
+}
 
-const revealObserver = new IntersectionObserver(
-  (entries) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add("visible");
-        revealObserver.unobserve(entry.target);
-      }
-    });
-  },
-  { threshold: 0.16 }
-);
+if ("IntersectionObserver" in window) {
+  const revealObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("visible");
+          revealObserver.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.16 }
+  );
 
-document.querySelectorAll(".reveal").forEach((element) => revealObserver.observe(element));
+  document.querySelectorAll(".reveal").forEach((element) => revealObserver.observe(element));
+} else {
+  document.querySelectorAll(".reveal").forEach((element) => element.classList.add("visible"));
+}
 
 const rsvpForm = document.getElementById("rsvp-form");
 const rsvpStatus = document.getElementById("rsvp-status");
+const giftsSection = document.getElementById("presentes");
 
-rsvpForm.addEventListener("submit", async (event) => {
-  event.preventDefault();
-  const isFirebaseReady = await firebaseReady;
-  if (!isFirebaseReady) {
-    rsvpStatus.textContent = "O site abriu, mas o Firebase não carregou. Tente atualizar a página.";
-    return;
-  }
+function scrollToGifts() {
+  if (!giftsSection) return;
 
-  const formData = Object.fromEntries(new FormData(rsvpForm).entries());
-  const rsvp = {
-    ...formData,
-    createdAt: serverTimestamp(),
-  };
+  window.location.hash = "presentes";
+  giftsSection.scrollIntoView({ behavior: "smooth", block: "start" });
+  window.setTimeout(() => {
+    giftsSection.scrollIntoView({ behavior: "auto", block: "start" });
+  }, 350);
+}
 
-  try {
-    await addDoc(collection(db, "rsvps"), rsvp);
-    localStorage.setItem("enrique-ellen-rsvp", JSON.stringify({ ...formData, sentAt: new Date().toISOString() }));
-    rsvpStatus.textContent = "Presença confirmada com carinho. Agora escolha um presente, se desejar.";
-    rsvpForm.reset();
-    document.getElementById("presentes").scrollIntoView({ behavior: "smooth", block: "start" });
-  } catch (error) {
-    console.error(error);
-    rsvpStatus.textContent = "Não foi possível enviar agora. Verifique as regras do Firebase e tente novamente.";
-  }
-});
+if (rsvpForm && rsvpStatus) {
+  rsvpForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const submitButton = rsvpForm.querySelector('button[type="submit"]');
+    if (submitButton) {
+      submitButton.disabled = true;
+      submitButton.textContent = "Enviando confirmação...";
+    }
+    rsvpStatus.textContent = "Enviando sua confirmação...";
+
+    const isFirebaseReady = await firebaseReady;
+    if (!isFirebaseReady) {
+      const formData = Object.fromEntries(new FormData(rsvpForm).entries());
+      localStorage.setItem("enrique-ellen-rsvp", JSON.stringify({ ...formData, sentAt: new Date().toISOString() }));
+      rsvpStatus.textContent = "Sua confirmação ficou salva neste aparelho. Agora escolha um presente, se desejar.";
+      scrollToGifts();
+      if (submitButton) {
+        submitButton.disabled = false;
+        submitButton.textContent = "Enviar confirmação";
+      }
+      return;
+    }
+
+    const formData = Object.fromEntries(new FormData(rsvpForm).entries());
+    const rsvp = {
+      ...formData,
+      createdAt: serverTimestamp(),
+    };
+
+    try {
+      await addDoc(collection(db, "rsvps"), rsvp);
+      localStorage.setItem("enrique-ellen-rsvp", JSON.stringify({ ...formData, sentAt: new Date().toISOString() }));
+      rsvpStatus.textContent = "Presença confirmada com carinho. Agora escolha um presente, se desejar.";
+      rsvpForm.reset();
+      scrollToGifts();
+    } catch (error) {
+      console.error(error);
+      localStorage.setItem("enrique-ellen-rsvp", JSON.stringify({ ...formData, sentAt: new Date().toISOString() }));
+      rsvpStatus.textContent = "Não foi possível salvar online agora, mas você já pode escolher um presente.";
+      scrollToGifts();
+    } finally {
+      if (submitButton) {
+        submitButton.disabled = false;
+        submitButton.textContent = "Enviar confirmação";
+      }
+    }
+  });
+}
 
 const messageForm = document.getElementById("message-form");
 const messageWall = document.getElementById("message-wall");
 const messageStatus = document.getElementById("message-status");
-const storedMessages = JSON.parse(localStorage.getItem("enrique-ellen-messages") || "[]");
+let storedMessages = [];
+
+try {
+  storedMessages = JSON.parse(localStorage.getItem("enrique-ellen-messages") || "[]");
+} catch (error) {
+  console.error(error);
+  storedMessages = [];
+}
 
 function renderMessage(message) {
+  if (!messageWall) return;
+
   const article = document.createElement("article");
   const text = document.createElement("p");
   const author = document.createElement("span");
@@ -144,37 +196,39 @@ function renderMessage(message) {
   messageWall.prepend(article);
 }
 
-storedMessages.forEach(renderMessage);
+if (messageForm && messageWall && messageStatus) {
+  storedMessages.forEach(renderMessage);
 
-messageForm.addEventListener("submit", async (event) => {
-  event.preventDefault();
-  const isFirebaseReady = await firebaseReady;
-  if (!isFirebaseReady) {
-    messageStatus.textContent = "O site abriu, mas o Firebase não carregou. Tente atualizar a página.";
-    return;
-  }
+  messageForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const isFirebaseReady = await firebaseReady;
+    if (!isFirebaseReady) {
+      messageStatus.textContent = "O site abriu, mas o Firebase não carregou. Tente atualizar a página.";
+      return;
+    }
 
-  const formData = Object.fromEntries(new FormData(messageForm).entries());
-  const message = {
-    autor: formData.autor.trim(),
-    texto: formData.texto.trim(),
-    createdAt: serverTimestamp(),
-  };
+    const formData = Object.fromEntries(new FormData(messageForm).entries());
+    const message = {
+      autor: formData.autor.trim(),
+      texto: formData.texto.trim(),
+      createdAt: serverTimestamp(),
+    };
 
-  if (!message.autor || !message.texto) return;
+    if (!message.autor || !message.texto) return;
 
-  try {
-    await addDoc(collection(db, "messages"), message);
-    storedMessages.push({ autor: message.autor, texto: message.texto });
-    localStorage.setItem("enrique-ellen-messages", JSON.stringify(storedMessages));
-    renderMessage(message);
-    messageStatus.textContent = "Mensagem enviada aos noivos.";
-    messageForm.reset();
-  } catch (error) {
-    console.error(error);
-    messageStatus.textContent = "Não foi possível enviar a mensagem agora. Tente novamente em instantes.";
-  }
-});
+    try {
+      await addDoc(collection(db, "messages"), message);
+      storedMessages.push({ autor: message.autor, texto: message.texto });
+      localStorage.setItem("enrique-ellen-messages", JSON.stringify(storedMessages));
+      renderMessage(message);
+      messageStatus.textContent = "Mensagem enviada aos noivos.";
+      messageForm.reset();
+    } catch (error) {
+      console.error(error);
+      messageStatus.textContent = "Não foi possível enviar a mensagem agora. Tente novamente em instantes.";
+    }
+  });
+}
 
 const giftButtons = document.querySelectorAll(".gift-reserve");
 const giftStatus = document.getElementById("gift-status");
@@ -185,8 +239,15 @@ const pixBox = document.getElementById("pix-box");
 const copyPixKey = document.getElementById("copy-pix-key");
 const pixKey = document.getElementById("pix-key");
 const reservedGifts = {};
-let myReservedGifts = JSON.parse(localStorage.getItem("enrique-ellen-my-gifts") || "{}");
+let myReservedGifts = {};
 let activeGift = "";
+
+try {
+  myReservedGifts = JSON.parse(localStorage.getItem("enrique-ellen-my-gifts") || "{}");
+} catch (error) {
+  console.error(error);
+  myReservedGifts = {};
+}
 
 if (Array.isArray(myReservedGifts)) {
   myReservedGifts = {};
@@ -203,10 +264,10 @@ function saveMyGiftReservations() {
 
 function markGiftAvailable(button) {
   const giftItem = button.closest(".gift-item");
-  const reservedBy = giftItem.querySelector(".gift-reserved-by");
+  const reservedBy = giftItem?.querySelector(".gift-reserved-by");
 
-  giftItem.classList.remove("is-reserved");
-  reservedBy.textContent = "";
+  giftItem?.classList.remove("is-reserved");
+  if (reservedBy) reservedBy.textContent = "";
   button.disabled = false;
   button.classList.remove("reserved");
   button.textContent = "Reservar presente";
@@ -215,11 +276,11 @@ function markGiftAvailable(button) {
 
 function markGiftReserved(button, reservation) {
   const giftItem = button.closest(".gift-item");
-  const reservedBy = giftItem.querySelector(".gift-reserved-by");
+  const reservedBy = giftItem?.querySelector(".gift-reserved-by");
   const isMine = Boolean(myReservedGifts[reservation.giftName]);
 
-  giftItem.classList.add("is-reserved");
-  reservedBy.textContent = `Reservado por ${reservation.name}`;
+  giftItem?.classList.add("is-reserved");
+  if (reservedBy) reservedBy.textContent = `Reservado por ${reservation.name}`;
   button.classList.add("reserved");
   button.disabled = !isMine;
   button.textContent = isMine ? "Cancelar reserva" : "Indisponível";
@@ -227,10 +288,23 @@ function markGiftReserved(button, reservation) {
 }
 
 function closeReservationPanel() {
+  if (!giftReservationForm) return;
+
   giftReservationForm.hidden = true;
   giftReservationForm.reset();
-  pixBox.hidden = true;
+  if (pixBox) pixBox.hidden = true;
   activeGift = "";
+}
+
+function openReservationPanel(giftName) {
+  if (!giftReservationForm || !selectedGiftName || !giftStatus) return;
+
+  activeGift = giftName;
+  selectedGiftName.textContent = giftName;
+  giftReservationForm.hidden = false;
+  giftReservationForm.scrollIntoView({ behavior: "smooth", block: "center" });
+  giftReservationForm.querySelector("input")?.focus();
+  giftStatus.textContent = "Escolha se deseja entregar em mãos ou fazer o valor em Pix.";
 }
 
 function refreshGiftButtons() {
@@ -246,132 +320,160 @@ function refreshGiftButtons() {
   });
 }
 
-firebaseReady.then((isFirebaseReady) => {
-  if (!isFirebaseReady) {
-    giftStatus.textContent = "O site abriu, mas o Firebase não carregou. As reservas online ficam indisponíveis até atualizar.";
-    return;
-  }
-
-  onSnapshot(
-    collection(db, "giftReservations"),
-    (snapshot) => {
-      Object.keys(reservedGifts).forEach((giftName) => delete reservedGifts[giftName]);
-
-      snapshot.forEach((document) => {
-        const reservation = document.data();
-        if (reservation.giftName) {
-          reservedGifts[reservation.giftName] = reservation;
-        }
-      });
-
-      refreshGiftButtons();
-    },
-    (error) => {
-      console.error(error);
-      giftStatus.textContent = "Não foi possível carregar as reservas online. Confira as regras do Firebase.";
+if (giftStatus && giftReservationForm && selectedGiftName) {
+  firebaseReady.then((isFirebaseReady) => {
+    if (!isFirebaseReady) {
+      giftStatus.textContent = "O site abriu, mas o Firebase não carregou. As reservas online ficam indisponíveis até atualizar.";
+      return;
     }
-  );
-});
 
-giftButtons.forEach((button) => {
-  const giftName = button.dataset.gift;
-  button.setAttribute("aria-pressed", "false");
+    onSnapshot(
+      collection(db, "giftReservations"),
+      (snapshot) => {
+        Object.keys(reservedGifts).forEach((giftName) => delete reservedGifts[giftName]);
 
-  button.addEventListener("click", async () => {
+        snapshot.forEach((document) => {
+          const reservation = document.data();
+          if (reservation.giftName) {
+            reservedGifts[reservation.giftName] = reservation;
+          }
+        });
+
+        refreshGiftButtons();
+      },
+      (error) => {
+        console.error(error);
+        giftStatus.textContent = "Não foi possível carregar as reservas online. Confira as regras do Firebase.";
+      }
+    );
+  });
+
+  giftButtons.forEach((button) => {
+    const giftName = button.dataset.gift;
+    button.setAttribute("aria-pressed", "false");
+
+    button.addEventListener("click", async () => {
+      if (reservedGifts[giftName]) {
+        if (!myReservedGifts[giftName]) return;
+
+        const isFirebaseReady = await firebaseReady;
+        if (!isFirebaseReady) {
+          giftStatus.textContent = "O Firebase não carregou. Tente atualizar a página antes de cancelar.";
+          return;
+        }
+
+        try {
+          await deleteDoc(doc(db, "giftReservations", giftDocId(giftName)));
+          delete myReservedGifts[giftName];
+          saveMyGiftReservations();
+          closeReservationPanel();
+          giftStatus.textContent = `${giftName} teve a reserva cancelada.`;
+        } catch (error) {
+          console.error(error);
+          giftStatus.textContent = "Não foi possível cancelar a reserva agora. Tente novamente.";
+        }
+
+        return;
+      }
+
+      openReservationPanel(giftName);
+    });
+  });
+
+  giftReservationForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const submitButton = giftReservationForm.querySelector('button[type="submit"]');
+
+    if (submitButton) {
+      submitButton.disabled = true;
+      submitButton.textContent = "Confirmando reserva...";
+    }
+
     const isFirebaseReady = await firebaseReady;
     if (!isFirebaseReady) {
-      giftStatus.textContent = "O Firebase não carregou. Tente atualizar a página antes de reservar.";
-      return;
-    }
-
-    if (reservedGifts[giftName]) {
-      if (!myReservedGifts[giftName]) return;
-
-      try {
-        await deleteDoc(doc(db, "giftReservations", giftDocId(giftName)));
-        delete myReservedGifts[giftName];
-        saveMyGiftReservations();
-        closeReservationPanel();
-        giftStatus.textContent = `${giftName} teve a reserva cancelada.`;
-      } catch (error) {
-        console.error(error);
-        giftStatus.textContent = "Não foi possível cancelar a reserva agora. Tente novamente.";
+      giftStatus.textContent = "O Firebase não carregou. Tente atualizar a página antes de confirmar.";
+      if (submitButton) {
+        submitButton.disabled = false;
+        submitButton.textContent = "Confirmar reserva";
       }
-
       return;
     }
 
-    activeGift = giftName;
-    selectedGiftName.textContent = giftName;
-    giftReservationForm.hidden = false;
-    giftReservationForm.querySelector("input").focus();
-    giftStatus.textContent = "";
+    if (!activeGift) {
+      if (submitButton) {
+        submitButton.disabled = false;
+        submitButton.textContent = "Confirmar reserva";
+      }
+      return;
+    }
+
+    const formData = new FormData(giftReservationForm);
+    const reservation = {
+      giftName: activeGift,
+      name: formData.get("giftGuestName").trim(),
+      phone: formData.get("giftGuestPhone").trim(),
+      method: formData.get("giftMethod"),
+      pixKey: formData.get("giftMethod") === "Pix" ? pixKey?.textContent || "" : "",
+      pixHolder: formData.get("giftMethod") === "Pix" ? "Ellen Raquel Kuhnen" : "",
+      reservedAt: serverTimestamp(),
+    };
+
+    if (!reservation.name || !reservation.phone) {
+      if (submitButton) {
+        submitButton.disabled = false;
+        submitButton.textContent = "Confirmar reserva";
+      }
+      return;
+    }
+
+    try {
+      await runTransaction(db, async (transaction) => {
+        const reservationRef = doc(db, "giftReservations", giftDocId(activeGift));
+        const reservationSnapshot = await transaction.get(reservationRef);
+
+        if (reservationSnapshot.exists()) {
+          throw new Error("gift-already-reserved");
+        }
+
+        transaction.set(reservationRef, reservation);
+      });
+
+      myReservedGifts[activeGift] = true;
+      saveMyGiftReservations();
+      giftStatus.textContent =
+        reservation.method === "Pix"
+          ? `${activeGift} reservado por ${reservation.name}. Chave Pix: ${reservation.pixKey}, titular Ellen Raquel Kuhnen.`
+          : `${activeGift} reservado por ${reservation.name}. Entrega em mãos selecionada. Obrigado pelo carinho!`;
+      closeReservationPanel();
+    } catch (error) {
+      console.error(error);
+      giftStatus.textContent =
+        error.message === "gift-already-reserved"
+          ? "Este presente acabou de ser reservado por outra pessoa."
+          : "Não foi possível reservar agora. Confira as regras do Firebase e tente novamente.";
+    } finally {
+      if (submitButton) {
+        submitButton.disabled = false;
+        submitButton.textContent = "Confirmar reserva";
+      }
+    }
   });
-});
 
-giftReservationForm.addEventListener("submit", async (event) => {
-  event.preventDefault();
-  const isFirebaseReady = await firebaseReady;
-  if (!isFirebaseReady) {
-    giftStatus.textContent = "O Firebase não carregou. Tente atualizar a página antes de confirmar.";
-    return;
-  }
-
-  if (!activeGift) return;
-
-  const formData = new FormData(giftReservationForm);
-  const reservation = {
-    giftName: activeGift,
-    name: formData.get("giftGuestName").trim(),
-    phone: formData.get("giftGuestPhone").trim(),
-    method: formData.get("giftMethod"),
-    pixKey: formData.get("giftMethod") === "Pix" ? pixKey.textContent : "",
-    pixHolder: formData.get("giftMethod") === "Pix" ? "Ellen Raquel Kuhnen" : "",
-    reservedAt: serverTimestamp(),
-  };
-
-  if (!reservation.name || !reservation.phone) return;
-
-  try {
-    await runTransaction(db, async (transaction) => {
-      const reservationRef = doc(db, "giftReservations", giftDocId(activeGift));
-      const reservationSnapshot = await transaction.get(reservationRef);
-
-      if (reservationSnapshot.exists()) {
-        throw new Error("gift-already-reserved");
-      }
-
-      transaction.set(reservationRef, reservation);
-    });
-
-    myReservedGifts[activeGift] = true;
-    saveMyGiftReservations();
-    giftStatus.textContent =
-      reservation.method === "Pix"
-        ? `${activeGift} reservado por ${reservation.name}. Chave Pix: ${reservation.pixKey}, titular Ellen Raquel Kuhnen.`
-        : `${activeGift} reservado por ${reservation.name}. Entrega em mãos selecionada. Obrigado pelo carinho!`;
+  closeGiftPanel?.addEventListener("click", () => {
     closeReservationPanel();
-  } catch (error) {
-    console.error(error);
-    giftStatus.textContent =
-      error.message === "gift-already-reserved"
-        ? "Este presente acabou de ser reservado por outra pessoa."
-        : "Não foi possível reservar agora. Confira as regras do Firebase e tente novamente.";
-  }
-});
+    giftStatus.textContent = "Reserva cancelada antes da confirmação.";
+  });
 
-closeGiftPanel.addEventListener("click", () => {
-  closeReservationPanel();
-  giftStatus.textContent = "Reserva cancelada antes da confirmação.";
-});
+  giftReservationForm.addEventListener("change", (event) => {
+    if (event.target.name === "giftMethod" && pixBox) {
+      pixBox.hidden = event.target.value !== "Pix";
+    }
+  });
+}
 
-giftReservationForm.addEventListener("change", (event) => {
-  if (event.target.name === "giftMethod") {
-    pixBox.hidden = event.target.value !== "Pix";
-  }
-});
+copyPixKey?.addEventListener("click", async () => {
+  if (!pixKey || !giftStatus) return;
 
-copyPixKey.addEventListener("click", async () => {
   try {
     await navigator.clipboard.writeText(pixKey.textContent);
     giftStatus.textContent = "Chave Pix copiada.";
