@@ -147,7 +147,7 @@ a {
   background:
     linear-gradient(180deg, rgba(22, 28, 22, 0.18), rgba(22, 28, 22, 0.34)),
     linear-gradient(90deg, rgba(251, 248, 241, 0.9), rgba(251, 248, 241, 0.58)),
-    url("assets/casal-novo-01.jpeg") center 38%/cover;
+    url("assets/casal-novo-08.jpeg") center 42%/cover;
 }
 
 .hero::after {
@@ -362,7 +362,8 @@ cite {
 .photo-card img {
   height: 100%;
   min-height: 16rem;
-  object-fit: cover;
+  object-fit: contain;
+  background: #f7f1e7;
 }
 
 .image-panel {
@@ -376,7 +377,7 @@ cite {
 .ceremony-image {
   background-image:
     linear-gradient(180deg, rgba(47, 53, 47, 0.04), rgba(47, 53, 47, 0.18)),
-    url("assets/casal-novo-12.jpeg");
+    url("assets/casal-novo-11.jpeg");
 }
 
 .info-panel {
@@ -783,7 +784,8 @@ textarea {
 .gallery-grid img {
   grid-column: span 2;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
+  background: #f7f1e7;
   border-radius: 8px;
   box-shadow: 0 16px 42px rgba(57, 61, 48, 0.12);
 }
